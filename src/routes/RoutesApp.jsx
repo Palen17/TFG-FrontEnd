@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom"
-import { RegisterForm } from "../components/RegisterForm"
-import { UsuariosView } from "../components/UsuariosView"
-import { UserProfile } from "../components/UserProfile"
-import { SolicitudesView } from "../components/SolicitudesView"
+import { RegisterForm } from "../pages/RegisterForm"
+import { UsuariosView } from "../pages/UsuariosView"
+import { UserProfile } from "../pages/UserProfile"
+import { SolicitudesView } from "../pages/SolicitudesView"
 
 export const RoutesApp = () => {
     return (
