@@ -11,14 +11,16 @@ export const UsuariosView = ({ id }) => {
             try {
                 const response = await axios.get(`http://localhost:8081/api/compatible/${id}`);
                 setUsuarios(response.data);  // Asumiendo que el backend devuelve los usuarios compatibles.
-                setLoading(false);
             } catch (err) {
                 setError('Error al cargar los usuarios');
+            } finally {
                 setLoading(false);
             }
         };
 
-        fetchUsuarios();
+        if (id) {
+            fetchUsuarios();
+        }
     }, [id]);
 
     if (loading) return <p>Cargando usuarios...</p>;
