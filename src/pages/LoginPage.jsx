@@ -1,69 +1,63 @@
 import { useState } from "react";
-import Swal from "sweetalert2";
 
-const initialLoginForm = {
-    username: '',
-    password: ''
-}
 export const LoginPage = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
 
-    const [loginForm, setLoginFrom] = useState(initialLoginForm)
-    const {username, password} = loginForm
-    const onInputChange =  ({target}) =>{
-        const {name, value} = target
-        setLoginFrom({
-            ...loginForm,
-            [name]: value,
-        })
-    }
-    const onSubmit = (event) =>{
-        event.preventDefault()
-        if (!username || !password){
-            Swal.fire('Error de validacion', 'Username y password requeridos')
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:8081/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ correo_electronico: email, contraseña: password }),
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                localStorage.setItem('token', data.token);
+                setMessage('Login exitoso');
+                // Aquí puedes redirigir a otra página o guardar el token en el localStorage
+            } else {
+                setMessage('Credenciales incorrectas');
+            }
+        } catch (error) {
+            setMessage('Error al intentar iniciar sesión');
         }
+    };
 
-        if (username === 'admin' && password === '12345'){
-            //handlerLogin()
-        }else{
-            Swal.fire('Error login', 'Username o password invalidos')
-        }
-
-        setLoginFrom(initialLoginForm)
-    }
     return (
-        <>
-            <div className="modal" style={{display: 'block'}} tabIndex="-1">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Login</h5>
-                        </div>
-                        <form onSubmit={onSubmit}>
-                            <div className="modal-body">
-                                <input className="form-control my-3 w-75"
-                                    placeholder="Username"
-                                    name="username" 
-                                    value={username}
-                                    onChange={onInputChange}/>
-                                    
-
-                                <input className="form-control my-3 w-75"
-                                    placeholder="Password"
-                                    type="password"
-                                    name="password"
-                                    value={password}
-                                    onChange={onInputChange} />
-                            </div>
-                            <div className="modal-footer">
-                                <button type="submit"
-                                    className="btn btn-primary" >
-                                    Login
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+        <div className="container mt-5">
+            <h2>Login</h2>
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                    <label htmlFor="email" className="form-label">Correo Electrónico</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
                 </div>
-            </div>
-        </>
+                <div className="mb-3">
+                    <label htmlFor="password" className="form-label">Contraseña</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <button type="submit" className="btn btn-primary">Iniciar Sesión</button>
+            </form>
+            {message && <div className="mt-3 alert alert-info">{message}</div>}
+        </div>
     );
 }

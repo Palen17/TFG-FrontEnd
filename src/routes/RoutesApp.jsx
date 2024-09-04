@@ -3,6 +3,7 @@ import { RegisterForm } from "../pages/RegisterForm"
 import { UsuariosView } from "../pages/UsuariosView"
 import { UserProfile } from "../pages/UserProfile"
 import { SolicitudesView } from "../pages/SolicitudesView"
+import { LoginPage } from "../pages/LoginPage"
 
 export const RoutesApp = () => {
     return (
@@ -13,6 +14,7 @@ export const RoutesApp = () => {
                 <Route path="usuario" element={<UserProfile />} />
                 <Route path="buscar" element={<UsuariosView />} />
                 <Route path="solicitudes" element={<SolicitudesView />} />
+                <Route path="login" element={<LoginPage />} />
             </Routes>
         </>
     )
