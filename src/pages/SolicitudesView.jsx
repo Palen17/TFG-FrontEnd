@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Loading } from '../components/Loading';
 
 export const SolicitudesView = () => {
     const [solicitudes, setSolicitudes] = useState([]); // Estado para las solicitudes
@@ -62,7 +63,7 @@ export const SolicitudesView = () => {
     };
 
     if (loading) {
-        return <p>Cargando solicitudes...</p>;
+        return <Loading />;
     }
 
     return (

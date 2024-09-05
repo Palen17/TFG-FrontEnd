@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const RegisterForm = () => {
+
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     correo_electronico: '',
@@ -40,6 +43,7 @@ export const RegisterForm = () => {
       const data = await response.json();
       if (data.success) {
         setMessage('Usuario registrado exitosamente');
+        navigate('/login')
       } else {
         setMessage('Error en el registro');
       }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Loading } from '../components/Loading';
 
 export const UserProfile = ({ id }) => {
     const [usuario, setUsuario] = useState(null);
@@ -23,7 +24,7 @@ export const UserProfile = ({ id }) => {
         }
     }, [id]);
 
-    if (loading) return <p>Cargando perfil...</p>;
+    if (loading) return <Loading />;
     if (error) return <p>{error}</p>;
 
     if (!usuario) return <p>No se encontró el usuario.</p>;

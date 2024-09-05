@@ -1,6 +1,21 @@
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 
-export const Navbar = () => {
+export const Navbar = ({ setDatosUsuario }) => {
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        // Eliminar el token de autenticación del almacenamiento local
+        localStorage.removeItem('token'); // O sessionStorage.removeItem('token');
+
+        // Limpiar los datos del usuario en el estado global
+        setDatosUsuario(null);
+
+        // Redirigir a la página de inicio de sesión
+        navigate('/login');
+        window.location.reload();
+    };
+
     return (
         <>
             <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -13,7 +28,7 @@ export const Navbar = () => {
                         <ul className="navbar-nav">
                             <li className="nav-item">
                                 <a className="active" aria-current="page"></a>
-                                <NavLink className={"nav-link"} to={"/"}>Mi perfil</NavLink>
+                                <NavLink className={"nav-link"} to={"/usuario"}>Mi perfil</NavLink>
                             </li>
                             <li className="nav-item">
                                 <NavLink className={"nav-link"} to={"/buscar"}>Buscar</NavLink>
@@ -23,6 +38,11 @@ export const Navbar = () => {
                             </li>
                             <li className="nav-item">
                                 <NavLink className={"nav-link"} to={"/contactos"}>Contactos</NavLink>
+                            </li>
+                            <li className="nav-item">
+                                <button className="btn btn-danger" onClick={handleLogout}>
+                                    Cerrar Sesión
+                                </button>
                             </li>
                         </ul>
                     </div>

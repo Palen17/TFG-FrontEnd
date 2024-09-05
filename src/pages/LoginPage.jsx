@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,7 +22,10 @@ export const LoginPage = () => {
             if (data.success) {
                 localStorage.setItem('token', data.token);
                 setMessage('Login exitoso');
-                // Aquí puedes redirigir a otra página o guardar el token en el localStorage
+                // Aquí puedes redirigir a otra página 
+                navigate('/usuario')
+                window.location.reload();
+
             } else {
                 setMessage('Credenciales incorrectas');
             }
@@ -58,6 +63,10 @@ export const LoginPage = () => {
                 <button type="submit" className="btn btn-primary">Iniciar Sesión</button>
             </form>
             {message && <div className="mt-3 alert alert-info">{message}</div>}
+            <br />
+            <div className="position-absolute top-30 start-20">
+                No tienes cuenta? <a href="http://localhost:5173/register">Registrate</a>
+            </div>
         </div>
     );
 }

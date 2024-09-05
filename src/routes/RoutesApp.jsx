@@ -6,13 +6,16 @@ import { SolicitudesView } from "../pages/SolicitudesView";
 import { LoginPage } from "../pages/LoginPage";
 
 export const RoutesApp = ({ datosUsuario }) => {
+   // Si no hay datosUsuario, redirigir a /login
+  
+
     return (
         <>
             <Routes>
-                <Route path="/" element={<Navigate to={'/usuario'} />} />
+                <Route path="/" element={<Navigate to={'/login'} />} />
                 <Route path="register" element={<RegisterForm />} />
                 <Route path="usuario" element={<UserProfile id={datosUsuario}/>} />
-                <Route path="buscar" element={<UsuariosView id={datosUsuario} />} />  {/* Pasar el ID */}
+                <Route path="buscar" element={<UsuariosView id={datosUsuario} user_type={datosUsuario}/>} />  {/* Pasar el ID */}
                 <Route path="solicitudes" element={<SolicitudesView />} />
                 <Route path="login" element={<LoginPage />} />
             </Routes>
