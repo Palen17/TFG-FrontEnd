@@ -4,10 +4,10 @@ import { UsuariosView } from "../pages/UsuariosView";
 import { UserProfile } from "../pages/UserProfile";
 import { SolicitudesView } from "../pages/SolicitudesView";
 import { LoginPage } from "../pages/LoginPage";
+import { Loading } from "../components/Loading";
 
 export const RoutesApp = ({ datosUsuario }) => {
-   // Si no hay datosUsuario, redirigir a /login
-  
+
 
     return (
         <>
@@ -15,7 +15,7 @@ export const RoutesApp = ({ datosUsuario }) => {
                 <Route path="/" element={<Navigate to={'/login'} />} />
                 <Route path="register" element={<RegisterForm />} />
                 <Route path="usuario" element={<UserProfile id={datosUsuario}/>} />
-                <Route path="buscar" element={<UsuariosView id={datosUsuario} user_type={datosUsuario}/>} />  {/* Pasar el ID */}
+                <Route path="buscar" element={<UsuariosView id={datosUsuario}/>} />  {/* Pasar el ID */}
                 <Route path="solicitudes" element={<SolicitudesView />} />
                 <Route path="login" element={<LoginPage />} />
             </Routes>
