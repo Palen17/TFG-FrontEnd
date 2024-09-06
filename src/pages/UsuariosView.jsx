@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loading } from '../components/Loading';
 
-export const UsuariosView = ({ id}) => {
+export const UsuariosView = ({ id, user_type }) => {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -29,6 +29,7 @@ export const UsuariosView = ({ id}) => {
 
     return (
         <>
+         <h2>{user_type === 1 ? 'Receptores disponibles' : 'Donantes disponibles'}</h2>
             {usuarios.length > 0 ? (
                 usuarios.map((usuario) => (
                     <div className="card w-50 my-4" key={usuario.id}>

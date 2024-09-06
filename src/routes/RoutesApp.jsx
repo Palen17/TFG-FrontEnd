@@ -7,15 +7,18 @@ import { LoginPage } from "../pages/LoginPage";
 import { Loading } from "../components/Loading";
 
 export const RoutesApp = ({ datosUsuario }) => {
-
+    
+    if(!datosUsuario){
+        return <Loading />
+    }
 
     return (
         <>
             <Routes>
                 <Route path="/" element={<Navigate to={'/login'} />} />
                 <Route path="register" element={<RegisterForm />} />
-                <Route path="usuario" element={<UserProfile id={datosUsuario}/>} />
-                <Route path="buscar" element={<UsuariosView id={datosUsuario}/>} />  {/* Pasar el ID */}
+                <Route path="usuario" element={<UserProfile id={datosUsuario.id}/>} />
+                <Route path="buscar" element={<UsuariosView id={datosUsuario.id} user_type={datosUsuario.user_type}/>} />  {/* Pasar el ID */}
                 <Route path="solicitudes" element={<SolicitudesView />} />
                 <Route path="login" element={<LoginPage />} />
             </Routes>

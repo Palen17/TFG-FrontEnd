@@ -20,7 +20,7 @@ export const LoginPage = () => {
 
             const data = await response.json();
             if (data.success) {
-                localStorage.setItem('token', data.token);
+                sessionStorage.setItem('token', data.token);
                 setMessage('Login exitoso');
                 // Aquí puedes redirigir a otra página 
                 navigate('/usuario')

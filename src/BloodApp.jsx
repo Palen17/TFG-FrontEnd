@@ -11,10 +11,13 @@ export const BloodApp = () => {
     const hideNavbarRoutes = ['/login', '/register'];
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         if (token) {
             const decoded = jwtDecode(token);
-            setDatosUsuario(decoded.id);  // Guardar el ID del usuario
+            setDatosUsuario({
+                id: decoded.id,
+                user_type: decoded.user_type
+            });  // Guardar el ID del usuario
         }
     }, []);
 
