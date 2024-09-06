@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Loading } from '../components/Loading';
 
-export const SolicitudesView = () => {
+export const SolicitudesView = ({id, user_type}) => {
     const [solicitudes, setSolicitudes] = useState([]); // Estado para las solicitudes
     const [loading, setLoading] = useState(true); // Estado para el loading
     const [showForm, setShowForm] = useState(false); // Estado para mostrar u ocultar el formulario
@@ -19,7 +19,7 @@ export const SolicitudesView = () => {
         descripcion: ''
     }); // Estado para los campos del formulario
 
-    const userId = 4; // Reemplaza esto con el id real del usuario
+    const userId = id; // Reemplaza esto con el id real del usuario
 
     useEffect(() => {
         // Obtener las solicitudes al montar el componente
@@ -68,9 +68,11 @@ export const SolicitudesView = () => {
 
     return (
         <>
-            <button className="btn btn-danger pull-right" onClick={() => setShowForm(true)}>
-                Nueva Solicitud
-            </button>
+            {user_type !== 1 && (
+                <button className="btn btn-danger pull-right" onClick={() => setShowForm(true)}>
+                    Nueva Solicitud
+                </button>
+            )}
             
             {showForm && (
                 <form onSubmit={handleSubmit} className="my-4">

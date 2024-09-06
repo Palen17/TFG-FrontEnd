@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Loading } from "../components/Loading";
+import { RegistroCompleto } from "../components/RegistroCompleto";
 
 export const RegisterForm = () => {
 
@@ -43,6 +45,7 @@ export const RegisterForm = () => {
       const data = await response.json();
       if (data.success) {
         setMessage('Usuario registrado exitosamente');
+        <RegistroCompleto />
         navigate('/login')
       } else {
         setMessage('Error en el registro');

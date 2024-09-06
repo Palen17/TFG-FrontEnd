@@ -19,7 +19,7 @@ export const RoutesApp = ({ datosUsuario }) => {
                 <Route path="register" element={<RegisterForm />} />
                 <Route path="usuario" element={<UserProfile id={datosUsuario.id}/>} />
                 <Route path="buscar" element={<UsuariosView id={datosUsuario.id} user_type={datosUsuario.user_type}/>} />  {/* Pasar el ID */}
-                <Route path="solicitudes" element={<SolicitudesView />} />
+                <Route path="solicitudes" element={<SolicitudesView id={datosUsuario.id} user_type={datosUsuario.user_type}/>} />
                 <Route path="login" element={<LoginPage />} />
             </Routes>
         </>
