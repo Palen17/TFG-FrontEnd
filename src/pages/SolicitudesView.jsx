@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Loading } from '../components/Loading';
 
-export const SolicitudesView = ({id, user_type}) => {
+export const SolicitudesView = ({ id }) => {
     const [solicitudes, setSolicitudes] = useState([]); // Estado para las solicitudes
     const [loading, setLoading] = useState(true); // Estado para el loading
     const [showForm, setShowForm] = useState(false); // Estado para mostrar u ocultar el formulario
@@ -18,6 +18,7 @@ export const SolicitudesView = ({id, user_type}) => {
         fecha_fin: '',
         descripcion: ''
     }); // Estado para los campos del formulario
+    const [sesion, setSesion] = useState([]);
 
     const userId = id; // Reemplaza esto con el id real del usuario
 
@@ -36,6 +37,22 @@ export const SolicitudesView = ({id, user_type}) => {
 
         fetchSolicitudes();
     }, []);
+
+    useEffect(() => {
+        // Obtener las solicitudes al montar el componente
+        const fetchSesion = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8081/api/usuarios/${id}`);
+                setSesion(response.data);
+            } catch (error) {
+                console.error('Error al obtener el usuario:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSesion();
+    }, [id]);
 
     const handleInputChange = (e) => {
         setNewSolicitud({
@@ -68,12 +85,21 @@ export const SolicitudesView = ({id, user_type}) => {
 
     return (
         <>
-            {user_type !== 1 && (
-                <button className="btn btn-danger pull-right" onClick={() => setShowForm(true)}>
-                    Nueva Solicitud
-                </button>
+
+            {sesion.length > 0 ? (
+                sesion.map((sesion) => (
+                    <div className="card w-50 my-4" key={sesion.id}>
+                        {sesion.user_type !== 1 && (
+                            <button className="btn btn-danger pull-right" onClick={() => setShowForm(true)}>
+                                Nueva Solicitud
+                            </button>
+                        )}
+                    </div>
+                ))
+            ) : (
+                <p> </p>
             )}
-            
+
             {showForm && (
                 <form onSubmit={handleSubmit} className="my-4">
                     <div className="form-group">

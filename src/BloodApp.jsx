@@ -14,10 +14,7 @@ export const BloodApp = () => {
         const token = sessionStorage.getItem("token");
         if (token) {
             const decoded = jwtDecode(token);
-            setDatosUsuario({
-                id: decoded.id,
-                user_type: decoded.user_type
-            });  // Guardar el ID del usuario
+            setDatosUsuario(decoded.id);
         }
     }, []);
 
