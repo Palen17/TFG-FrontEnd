@@ -3,27 +3,21 @@ import axios from 'axios';
 import { Loading } from '../components/Loading';
 
 export const SolicitudesView = ({ id }) => {
-    const [solicitudes, setSolicitudes] = useState([]); // Estado para las solicitudes
-    const [loading, setLoading] = useState(true); // Estado para el loading
-    const [showForm, setShowForm] = useState(false); // Estado para mostrar u ocultar el formulario
+    const [solicitudes, setSolicitudes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+    const [viewUserSolicitudes, setViewUserSolicitudes] = useState(false); // Controla qué vista mostrar
     const [newSolicitud, setNewSolicitud] = useState({
         usuario: '',
-        nombre: '',
-        apellido: '',
-        correo_electronico: '',
-        provincia: '',
-        ciudad: '',
-        factor_sanguineo: '',
-        fecha_comienzo: '',
-        fecha_fin: '',
         descripcion: ''
-    }); // Estado para los campos del formulario
+    });
+    const [filterFactor, setFilterFactor] = useState(''); // Filtro de factor sanguíneo
     const [sesion, setSesion] = useState([]);
 
-    const userId = id; // Reemplaza esto con el id real del usuario
+    const userId = id; // ID del usuario actual
 
+    // Obtener todas las solicitudes
     useEffect(() => {
-        // Obtener las solicitudes al montar el componente
         const fetchSolicitudes = async () => {
             try {
                 const response = await axios.get('http://localhost:8081/api/solicitudes');
@@ -34,26 +28,23 @@ export const SolicitudesView = ({ id }) => {
                 setLoading(false);
             }
         };
-
         fetchSolicitudes();
     }, []);
 
+    // Obtener datos de la sesión del usuario
     useEffect(() => {
-        // Obtener las solicitudes al montar el componente
         const fetchSesion = async () => {
             try {
                 const response = await axios.get(`http://localhost:8081/api/usuarios/${id}`);
                 setSesion(response.data);
             } catch (error) {
                 console.error('Error al obtener el usuario:', error);
-            } finally {
-                setLoading(false);
             }
         };
-
         fetchSesion();
     }, [id]);
 
+    // Manejar cambios en el formulario de solicitud
     const handleInputChange = (e) => {
         setNewSolicitud({
             ...newSolicitud,
@@ -61,32 +52,59 @@ export const SolicitudesView = ({ id }) => {
         });
     };
 
+    // Enviar solicitud al backend
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Enviar la solicitud al backend
             const response = await axios.post('http://localhost:8081/api/solicitudes', {
-                usuario: userId, // El ID del usuario que carga la solicitud
-                fecha_comienzo: newSolicitud.fecha_comienzo,
-                fecha_fin: newSolicitud.fecha_fin,
+                usuario: userId,
                 descripcion: newSolicitud.descripcion
             });
-            setSolicitudes([...solicitudes, response.data]); // Actualiza la lista de solicitudes
-            setShowForm(false); // Cierra el formulario
-            setNewSolicitud({ usuario: '', fecha_comienzo: '', fecha_fin: '', descripcion: '' }); // Resetea el formulario
+            setSolicitudes([...solicitudes, response.data]);
+            setShowForm(false);
+            setNewSolicitud({ usuario: '', descripcion: '' });
         } catch (error) {
             console.error('Error al crear la solicitud:', error);
         }
     };
 
+    // Eliminar solicitud
+    const handleDelete = async (solicitudId) => {
+        try {
+            await axios.delete(`http://localhost:8081/api/solicitudes/${solicitudId}`);
+            setSolicitudes(solicitudes.filter(solicitud => solicitud.id !== solicitudId)); // Remover del estado
+        } catch (error) {
+            console.error('Error al eliminar la solicitud:', error);
+        }
+    };
+
+    // Filtrar solicitudes por factor sanguíneo
+    const filteredSolicitudes = solicitudes.filter(solicitud =>
+        solicitud.factor_sanguineo.includes(filterFactor)
+    );
+
     if (loading) {
         return <Loading />;
     }
 
+    // Filtrar las solicitudes según el usuario
+    const userSolicitudes = solicitudes.filter(solicitud => solicitud.usuario === userId);
+    const otherSolicitudes = solicitudes.filter(solicitud => solicitud.usuario !== userId);
+
     return (
         <>
+            {/* Botón para alternar vistas */}
+            <div className="my-4">
+                <button className="btn btn-primary" onClick={() => setViewUserSolicitudes(false)}>
+                    Todas las Solicitudes
+                </button>
+                <button className="btn btn-secondary" onClick={() => setViewUserSolicitudes(true)}>
+                    Mis Solicitudes
+                </button>
+            </div>
 
-            {sesion.length > 0 ? (
+            {/* Botón para crear nueva solicitud */}
+            {sesion.length > 0 && (
                 sesion.map((sesion) => (
                     <div className="card w-50 my-4" key={sesion.id}>
                         {sesion.user_type !== 1 && (
@@ -96,34 +114,11 @@ export const SolicitudesView = ({ id }) => {
                         )}
                     </div>
                 ))
-            ) : (
-                <p> </p>
             )}
 
+            {/* Formulario para nueva solicitud */}
             {showForm && (
                 <form onSubmit={handleSubmit} className="my-4">
-                    <div className="form-group">
-                        <label>Fecha de Comienzo</label>
-                        <input
-                            type="date"
-                            name="fecha_comienzo"
-                            value={newSolicitud.fecha_comienzo}
-                            onChange={handleInputChange}
-                            className="form-control"
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Fecha de Fin</label>
-                        <input
-                            type="date"
-                            name="fecha_fin"
-                            value={newSolicitud.fecha_fin}
-                            onChange={handleInputChange}
-                            className="form-control"
-                            required
-                        />
-                    </div>
                     <div className="form-group">
                         <label>Descripción</label>
                         <textarea
@@ -141,23 +136,55 @@ export const SolicitudesView = ({ id }) => {
                 </form>
             )}
 
+            {/* Filtro por factor sanguíneo */}
+            <div className="form-group">
+                <label>Filtrar por Factor Sanguíneo</label>
+                <select className="form-control" value={filterFactor} onChange={(e) => setFilterFactor(e.target.value)}>
+                    <option value="">Todos</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+
+            {/* Mostrar solicitudes filtradas */}
             <div className="my-4">
-                {solicitudes.length > 0 ? (
-                    solicitudes.map((solicitud) => (
-                        <div className="card w-50 my-4" key={solicitud.id}>
-                            <div className="card-body">
-                                <h5 className="card-title">{solicitud.nombre} {solicitud.apellido}</h5>
-                                <p className="card-text">Email: {solicitud.correo_electronico}</p>
-                                <p className="card-text">Provincia: {solicitud.provincia}</p>
-                                <p className="card-text">Ciudad: {solicitud.ciudad}</p>
-                                <p className="card-text">Factor Sanguineo: {solicitud.factor_sanguineo}</p>
-                                <p className="card-text">Descripción: {solicitud.descripcion}</p>
-                                <button className="btn btn-danger">Enviar mensaje</button>
+                {viewUserSolicitudes ? (
+                    userSolicitudes.length > 0 ? (
+                        userSolicitudes.map((solicitud) => (
+                            <div className="card w-50 my-4" key={solicitud.id}>
+                                <div className="card-body">
+                                    <h5 className="card-title">{solicitud.nombre} {solicitud.apellido}</h5>
+                                    <p className="card-text">Descripción: {solicitud.descripcion}</p>
+                                    <button className="btn btn-danger" onClick={() => handleDelete(solicitud.id)}>Eliminar</button>
+                                </div>
                             </div>
-                        </div>
-                    ))
+                        ))
+                    ) : (
+                        <p>No tienes solicitudes</p>
+                    )
                 ) : (
-                    <p>No hay solicitudes disponibles</p>
+                    filteredSolicitudes.length > 0 ? (
+                        otherSolicitudes.map((solicitud) => (
+                            <div className="card w-50 my-4" key={solicitud.id}>
+                                <div className="card-body">
+                                    <h5 className="card-title">{solicitud.nombre} {solicitud.apellido}</h5>
+                                    <p className="card-text">Email: {solicitud.correo_electronico}</p>
+                                    <p className="card-text">Provincia: {solicitud.provincia}</p>
+                                    <p className="card-text">Ciudad: {solicitud.ciudad}</p>
+                                    <p className="card-text">Factor Sanguíneo: {solicitud.factor_sanguineo}</p>
+                                    <p className="card-text">Descripción: {solicitud.descripcion}</p>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No hay solicitudes disponibles</p>
+                    )
                 )}
             </div>
         </>
