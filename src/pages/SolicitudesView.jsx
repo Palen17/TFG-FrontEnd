@@ -1,192 +1,184 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Loading } from '../components/Loading';
+import { jwtDecode } from 'jwt-decode';
 
 export const SolicitudesView = ({ id }) => {
     const [solicitudes, setSolicitudes] = useState([]);
+    const [misSolicitudes, setMisSolicitudes] = useState([]);
+    const [selectedView, setSelectedView] = useState('all');
+    const [filtroFactorSanguineo, setFiltroFactorSanguineo] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [sesion, setSesion] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
-    const [viewUserSolicitudes, setViewUserSolicitudes] = useState(false); // Controla qué vista mostrar
-    const [newSolicitud, setNewSolicitud] = useState({
-        usuario: '',
-        descripcion: ''
-    });
-    const [filterFactor, setFilterFactor] = useState(''); // Filtro de factor sanguíneo
-    const [sesion, setSesion] = useState([]);
+    
+    // Posibles opciones de factor sanguíneo
+    const factoresSanguineos = ['0+', '0-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
 
-    const userId = id; // ID del usuario actual
-
-    // Obtener todas las solicitudes
-    useEffect(() => {
-        const fetchSolicitudes = async () => {
+   
+   
+        // Obtener el userType al montar el componente
+        const fetchSesion = async (userÏd) => {
             try {
-                const response = await axios.get('http://localhost:8081/api/solicitudes');
-                setSolicitudes(response.data);
+                const response = await axios.get(`http://localhost:8081/api/usuarios/${userÏd}`);
+                const response1 = { userType: response.data[0].user_type };
+                
+                console.log(response1); // Mostrar el valor de response1
+                
+                setSesion(response1.userType); // Actualizar el estado de sesion
+                
+                
             } catch (error) {
-                console.error('Error al obtener las solicitudes:', error);
+                console.error('Error al obtener el usuario:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchSolicitudes();
-    }, []);
 
-    // Obtener datos de la sesión del usuario
+
+    // Monitorear cambios en el estado "sesion"
     useEffect(() => {
-        const fetchSesion = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8081/api/usuarios/${id}`);
-                setSesion(response.data);
-            } catch (error) {
-                console.error('Error al obtener el usuario:', error);
-            }
-        };
-        fetchSesion();
-    }, [id]);
+        const token = sessionStorage.getItem('token');
+        if (token) {
+            const decoded = jwtDecode(token);
+            console.log(decoded.id); 
+            
+            fetchSesion(decoded.id);
+            fetchSolicutudes(decoded.id)
+        }
+        if (sesion !== null) {
+            console.log('Valor actualizado de sesion:', sesion);
+        }
+    }, [sesion]);
 
-    // Manejar cambios en el formulario de solicitud
-    const handleInputChange = (e) => {
-        setNewSolicitud({
-            ...newSolicitud,
-            [e.target.name]: e.target.value
-        });
-    };
+    
 
-    // Enviar solicitud al backend
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const fetchSolicutudes = async (userÏd) => {
         try {
-            const response = await axios.post('http://localhost:8081/api/solicitudes', {
-                usuario: userId,
-                descripcion: newSolicitud.descripcion
-            });
-            setSolicitudes([...solicitudes, response.data]);
-            setShowForm(false);
-            setNewSolicitud({ usuario: '', descripcion: '' });
+            // Traer todas las solicitudes que no son del usuario
+        axios.get(`http://localhost:8081/api/solicitudes/getAllSolicitudes/${userÏd}`)
+        .then(response => setSolicitudes(response.data))
+        .catch(error => console.error(error));
+    
+    // Traer las solicitudes del usuario en sesión
+        axios.get(`http://localhost:8081/api/solicitudes/getMySolicitud/${userÏd}`)
+        .then(response => setMisSolicitudes(response.data))
+        .catch(error => console.error(error));
+            
+            
         } catch (error) {
-            console.error('Error al crear la solicitud:', error);
+            console.error('Error al obtener el usuario:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Eliminar solicitud
-    const handleDelete = async (solicitudId) => {
-        try {
-            await axios.delete(`http://localhost:8081/api/solicitudes/${solicitudId}`);
-            setSolicitudes(solicitudes.filter(solicitud => solicitud.id !== solicitudId)); // Remover del estado
-        } catch (error) {
-            console.error('Error al eliminar la solicitud:', error);
-        }
+    const handleFilterChange = (event) => {
+        setFiltroFactorSanguineo(event.target.value);
     };
 
-    // Filtrar solicitudes por factor sanguíneo
-    const filteredSolicitudes = solicitudes.filter(solicitud =>
-        solicitud.factor_sanguineo.includes(filterFactor)
+    const handleAddSolicitud = () => {
+        if (descripcion.trim() === '') return;
+
+        axios.post('http://localhost:8081/api/solicitudes/addSolicitud', { usuario: id, descripcion })
+            .then(response => {
+                setMisSolicitudes([...misSolicitudes, response.data]);
+                setDescripcion(''); // Limpiar el campo de descripción
+                window.location.reload()
+            })
+            .catch(error => console.error(error));
+    };
+
+    const filteredSolicitudes = solicitudes.filter(solicitud => 
+        !filtroFactorSanguineo || solicitud.factor_sanguineo === filtroFactorSanguineo
     );
 
-    if (loading) {
-        return <Loading />;
-    }
-
-    // Filtrar las solicitudes según el usuario
-    const userSolicitudes = solicitudes.filter(solicitud => solicitud.usuario === userId);
-    const otherSolicitudes = solicitudes.filter(solicitud => solicitud.usuario !== userId);
+    if (loading) return <div>Cargando...</div>;
+    
 
     return (
-        <>
-            {/* Botón para alternar vistas */}
-            <div className="my-4">
-                <button className="btn btn-primary" onClick={() => setViewUserSolicitudes(false)}>
+        <div className="container mt-4">
+            <h1>Solicitudes</h1>
+            <div className="d-flex justify-content-center mb-3">
+                <button 
+                    className={`btn ${selectedView === 'all' ? 'btn-primary' : 'btn-outline-primary'} me-2`} 
+                    onClick={() => setSelectedView('all')}>
                     Todas las Solicitudes
                 </button>
-                <button className="btn btn-secondary" onClick={() => setViewUserSolicitudes(true)}>
+                <button 
+                    className={`btn ${selectedView === 'mine' ? 'btn-primary' : 'btn-outline-primary'}`} 
+                    onClick={() => setSelectedView('mine')}>
                     Mis Solicitudes
                 </button>
             </div>
 
-            {/* Botón para crear nueva solicitud */}
-            {sesion.length > 0 && (
-                sesion.map((sesion) => (
-                    <div className="card w-50 my-4" key={sesion.id}>
-                        {sesion.user_type !== 1 && (
-                            <button className="btn btn-danger pull-right" onClick={() => setShowForm(true)}>
-                                Nueva Solicitud
+            {selectedView === 'all' ? (
+                <div>
+                    <h2>Solicitudes Disponibles</h2>
+                    <div className="mb-3">
+                        <label>Filtrar por Factor Sanguíneo:</label>
+                        <select 
+                            className="form-control" 
+                            value={filtroFactorSanguineo} 
+                            onChange={handleFilterChange}>
+                            <option value="">Todos</option>
+                            {factoresSanguineos.map(factor => (
+                                <option key={factor} value={factor}>{factor}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="list-group">
+                        {filteredSolicitudes.map(solicitud => (
+                            <div key={solicitud.id} className="list-group-item">
+                                <h5>{solicitud.nombre} {solicitud.apellido}</h5>
+                                <p>{solicitud.descripcion}</p>
+                                <p>Factor Sanguíneo: {solicitud.factor_sanguineo}</p>
+                                <p>Provincia: {solicitud.provincia}, Ciudad: {solicitud.ciudad}</p>
+                                <p>Contacto: {solicitud.correo_electronico}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                
+                <div>
+                    
+                    { sesion === 2 && (
+                        <div className="mt-4">
+                            <h3>Crear Nueva Solicitud</h3>
+                            <div className="mb-3">
+                                <label>Descripción</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control" 
+                                    value={descripcion} 
+                                    onChange={(e) => setDescripcion(e.target.value)} 
+                                    placeholder="Ingrese una descripción"
+                                />
+                            </div>
+                            <button 
+                                className="btn btn-success" 
+                                onClick={handleAddSolicitud}>
+                                Crear Solicitud
                             </button>
-                        )}
-                    </div>
-                ))
-            )}
+                        </div>
+                    )}
 
-            {/* Formulario para nueva solicitud */}
-            {showForm && (
-                <form onSubmit={handleSubmit} className="my-4">
-                    <div className="form-group">
-                        <label>Descripción</label>
-                        <textarea
-                            name="descripcion"
-                            value={newSolicitud.descripcion}
-                            onChange={handleInputChange}
-                            className="form-control"
-                            required
-                        ></textarea>
-                    </div>
-                    <button type="submit" className="btn btn-primary">Guardar Solicitud</button>
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
-                        Cancelar
-                    </button>
-                </form>
-            )}
-
-            {/* Filtro por factor sanguíneo */}
-            <div className="form-group">
-                <label>Filtrar por Factor Sanguíneo</label>
-                <select className="form-control" value={filterFactor} onChange={(e) => setFilterFactor(e.target.value)}>
-                    <option value="">Todos</option>
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                </select>
-            </div>
-
-            {/* Mostrar solicitudes filtradas */}
-            <div className="my-4">
-                {viewUserSolicitudes ? (
-                    userSolicitudes.length > 0 ? (
-                        userSolicitudes.map((solicitud) => (
-                            <div className="card w-50 my-4" key={solicitud.id}>
-                                <div className="card-body">
-                                    <h5 className="card-title">{solicitud.nombre} {solicitud.apellido}</h5>
-                                    <p className="card-text">Descripción: {solicitud.descripcion}</p>
-                                    <button className="btn btn-danger" onClick={() => handleDelete(solicitud.id)}>Eliminar</button>
-                                </div>
+                    <br />
+                    <h2>Mis Solicitudes</h2>
+                    <div className="list-group">
+                        {misSolicitudes.map(solicitud => (
+                            <div key={solicitud.id} className="list-group-item">
+                                <h5>{solicitud.nombre} {solicitud.apellido}</h5>
+                                <p>{solicitud.solicitud_descripcion}</p>
+                                <p>Factor Sanguíneo: {solicitud.factor_sanguineo}</p>
+                                <p>Provincia: {solicitud.provincia}, Ciudad: {solicitud.ciudad}</p>
+                                <p>Contacto: {solicitud.correo_electronico}</p>
                             </div>
-                        ))
-                    ) : (
-                        <p>No tienes solicitudes</p>
-                    )
-                ) : (
-                    filteredSolicitudes.length > 0 ? (
-                        otherSolicitudes.map((solicitud) => (
-                            <div className="card w-50 my-4" key={solicitud.id}>
-                                <div className="card-body">
-                                    <h5 className="card-title">{solicitud.nombre} {solicitud.apellido}</h5>
-                                    <p className="card-text">Email: {solicitud.correo_electronico}</p>
-                                    <p className="card-text">Provincia: {solicitud.provincia}</p>
-                                    <p className="card-text">Ciudad: {solicitud.ciudad}</p>
-                                    <p className="card-text">Factor Sanguíneo: {solicitud.factor_sanguineo}</p>
-                                    <p className="card-text">Descripción: {solicitud.descripcion}</p>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No hay solicitudes disponibles</p>
-                    )
-                )}
-            </div>
-        </>
+                        ))}
+                    </div>
+                    
+                </div>
+            )}
+        </div>
     );
 };
