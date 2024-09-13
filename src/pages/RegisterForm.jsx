@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loading } from "../components/Loading";
 import Swal from "sweetalert2";
 
 export const RegisterForm = () => {
@@ -31,8 +30,44 @@ export const RegisterForm = () => {
     });
   };
 
+  const calcularEdad = (fechaNacimiento) => {
+    const hoy = new Date();
+    const fechaNac = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - fechaNac.getFullYear();
+    const mes = hoy.getMonth() - fechaNac.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+      edad--;
+    }
+    return edad;
+  };
+
+  const validarDatosDonante = () => {
+    const edad = calcularEdad(form.fecha_nacimiento);
+    const peso = parseInt(form.peso);
+
+    if (edad < 18 || edad > 65) {
+      setMessage("Los donantes deben tener entre 18 y 65 años.");
+      return false;
+    }
+
+    if (peso <= 50) {
+      setMessage("Los donantes deben pesar más de 50 kg.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar si el tipo de usuario es Donante
+    if (form.user_type === "1") {
+      if (!validarDatosDonante()) {
+        return;
+      }
+    }
+
     try {
       const response = await fetch('http://localhost:8081/api/usuarios', {
         method: 'POST',
@@ -218,8 +253,8 @@ export const RegisterForm = () => {
             <option value="B-">B-</option>
             <option value="AB+">AB+</option>
             <option value="AB-">AB-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
+            <option value="0+">0+</option>
+            <option value="0-">0-</option>
           </select>
         </div>
 
@@ -241,8 +276,7 @@ export const RegisterForm = () => {
 
         <button type="submit" className="btn btn-danger">Registrarse</button>
       </form>
-      {message && <div className="mt-3 alert alert-info">{message}</div>}
+      {message && <div className="mt-3 alert alert-danger" role="alert">{message}</div>}
     </div>
   );
-
 }

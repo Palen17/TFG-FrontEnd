@@ -102,10 +102,10 @@ export const UserProfile = ({ id }) => {
                         <p><strong>Provincia:</strong> {usuario.provincia}</p>
                         <p><strong>Ciudad:</strong> {usuario.ciudad}</p>
                         <p><strong>Teléfono:</strong> {usuario.telefono}</p>
-                        <p><strong>Factor Sanguíneo:</strong> {usuario.factor_sanguineo}</p>
                         <p><strong>Tipo de Usuario:</strong> {usuario.user_type === 1 ? "Donante" : "Receptor"}</p>
+                        <p className='fs-5 text-center w-25 p-3 bg-danger text-white rounded-pill'>{usuario.factor_sanguineo}</p>
 
-                        <button className="btn btn-primary" onClick={() => setIsEditing(true)}>Editar Perfil</button>
+                        <button className="btn btn-primary position-absolute bottom-0 end-0" onClick={() => setIsEditing(true)}>Editar Perfil</button>
                     </>
                 )}
             </div>

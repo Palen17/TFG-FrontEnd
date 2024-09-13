@@ -77,8 +77,8 @@ export const UsuariosView = ({ id }) => {
                             <p className="card-text">{usuario.correo_electronico}</p>
                             <p className="card-text">{usuario.provincia}</p>
                             <p className="card-text">{usuario.ciudad}</p>
-                            <p className="card-text">{usuario.factor_sanguineo}</p>
-                            <button className="btn btn-danger" onClick={() => handleEnviarSolicitud(id, usuario.id)}>Enviar Solicitud</button>
+                            <p className="card-text fs-5 text-center w-25 p-3 bg-danger text-white rounded-pill">{usuario.factor_sanguineo}</p>
+                            <button className="btn btn-primary position-absolute bottom-0 end-0" onClick={() => handleEnviarSolicitud(id, usuario.id)}>Enviar Solicitud</button>
                         </div>
                     </div>
                 ))

@@ -125,13 +125,13 @@ export const SolicitudesView = ({ id }) => {
             <h1>Solicitudes</h1>
             <div className="d-flex justify-content-center mb-3">
                 <button
-                    className={`btn ${selectedView === 'all' ? 'btn-danger' : 'btn-outline-secondary'} me-2`}
+                    className={`btn ${selectedView === 'all' ? 'btn-primary' : 'btn-outline-secondary'} me-2`}
                     onClick={() => setSelectedView('all')}>
                     Todas las Solicitudes
                 </button>
                 {sesion === 2 && (
                 <button
-                    className={`btn ${selectedView === 'mine' ? 'btn-danger' : 'btn-outline-secondary'}`}
+                    className={`btn ${selectedView === 'mine' ? 'btn-primary' : 'btn-outline-secondary'}`}
                     onClick={() => setSelectedView('mine')}>
                     Mis Solicitudes
                 </button>
@@ -160,16 +160,16 @@ export const SolicitudesView = ({ id }) => {
                             No hay solicitudes disponibles para el filtro seleccionado.
                         </div>
                     ) : (
-                        <div className="list-group">
+                        <div className="list-group w-75 my-4">
                             {filteredSolicitudes.map(solicitud => (
                                 <div key={solicitud.solicitud_id} className="list-group-item">
                                     <h5>{solicitud.nombre} {solicitud.apellido}</h5>
-                                    <p>{solicitud.descripcion}</p>
-                                    <p>Factor Sanguíneo: {solicitud.factor_sanguineo}</p>
                                     <p>Provincia: {solicitud.provincia}, Ciudad: {solicitud.ciudad}</p>
                                     <p>Contacto: {solicitud.correo_electronico}</p>
+                                    <p>{solicitud.descripcion}</p>
+                                    <p className="fs-5 text-center w-25 p-3 bg-danger text-white rounded-pill">{solicitud.factor_sanguineo}</p>
                                     <button
-                                        className="btn btn-danger"
+                                        className="btn btn-primary position-absolute bottom-0 end-0"
                                         onClick={() => handleEnviarWhatsapp(solicitud.telefono)}>
                                         Enviar Mensaje
                                     </button>
@@ -197,7 +197,7 @@ export const SolicitudesView = ({ id }) => {
                                 />
                             </div>
                             <button
-                                className="btn btn-danger"
+                                className="btn btn-primary"
                                 onClick={handleAddSolicitud}>
                                 Crear Solicitud
                             </button>
@@ -217,12 +217,13 @@ export const SolicitudesView = ({ id }) => {
                             {misSolicitudes.map(solicitud => (
                                 <div key={solicitud.solicitud_id} className="list-group-item">
                                     <h5>{solicitud.nombre} {solicitud.apellido}</h5>
-                                    <p>{solicitud.solicitud_descripcion}</p>
-                                    <p>Factor Sanguíneo: {solicitud.factor_sanguineo}</p>
                                     <p>Provincia: {solicitud.provincia}, Ciudad: {solicitud.ciudad}</p>
                                     <p>Contacto: {solicitud.correo_electronico}</p>
+                                    <p>{solicitud.solicitud_descripcion}</p>
+                                    <p className="fs-5 text-center w-25 p-3 bg-danger text-white rounded-pill">{solicitud.factor_sanguineo}</p>
+                                    
                                     <button
-                                        className="btn btn-warning"
+                                        className="btn btn-warning position-absolute bottom-0 end-0"
                                         onClick={() => handleDeleteSolicitud(solicitud.solicitud_id)}>
                                         Eliminar Solicitud
                                     </button>

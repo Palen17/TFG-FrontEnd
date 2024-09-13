@@ -73,29 +73,34 @@ export const ContactoView = () => {
                     className={`btn ${view === 'pendientes' ? 'btn-primary' : 'btn-outline-primary'} mx-2`}
                     onClick={() => setView('pendientes')}
                 >
-                    Solicitudes Pendientes
+                    Pendientes
                 </button>
                 <button
                     className={`btn ${view === 'aceptadas' ? 'btn-primary' : 'btn-outline-primary'} mx-2`}
                     onClick={() => setView('aceptadas')}
                 >
-                    Solicitudes Aceptadas
+                    Contactos
                 </button>
             </div>
 
             {/* Mostrar solicitudes pendientes o aceptadas según la vista seleccionada */}
             {view === 'pendientes' && (
                 <>
-                    <h2>Solicitudes Pendientes</h2>
+                    <h2>Quieren contactar contigo</h2>
                     {pendientes.length > 0 ? (
                         pendientes.map(solicitud => (
                             <div className="card w-50 my-4" key={solicitud.id}>
                                 <div className="card-body">
                                     <h5 className="card-title">{solicitud.nombre} {solicitud.apellido}</h5>
                                     <p className="card-text">Email: {solicitud.correo_electronico}</p>
-                                    <p className="card-text">Factor Sanguineo: {solicitud.factor_sanguineo}</p>
-                                    <button className="btn btn-success" onClick={() => handleAceptar(solicitud.id)}>Aceptar</button>
-                                    <button className="btn btn-danger" onClick={() => handleRechazar(solicitud.id)}>Rechazar</button>
+                                    <p className="card-text">Provincia: {solicitud.provincia}</p>
+                                    <p className="card-text">Ciudad: {solicitud.ciudad}</p>
+                                    <p className="card-text fs-5 text-center w-25 p-3 bg-danger text-white rounded-pill">{solicitud.factor_sanguineo}</p>
+                                    <div className='position-absolute bottom-0 end-0'>
+                                    <button className="btn btn-primary me-2" onClick={() => handleAceptar(solicitud.id)}>Aceptar</button>
+                                    <button className="btn btn-warning" onClick={() => handleRechazar(solicitud.id)}>Rechazar</button>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         ))
@@ -107,15 +112,17 @@ export const ContactoView = () => {
 
             {view === 'aceptadas' && (
                 <>
-                    <h2>Solicitudes Aceptadas</h2>
+                    <h2>Tus contactos</h2>
                     {aceptadas.length > 0 ? (
                         aceptadas.map(solicitud => (
                             <div className="card w-50 my-4" key={solicitud.id}>
                                 <div className="card-body">
                                     <h5 className="card-title">{solicitud.nombre} {solicitud.apellido}</h5>
                                     <p className="card-text">Email: {solicitud.correo_electronico}</p>
-                                    <p className="card-text">Factor Sanguineo: {solicitud.factor_sanguineo}</p>
-                                    <button className="btn btn-primary" onClick={() => handleEnviarWhatsapp(solicitud.telefono)}>
+                                    <p className="card-text">Provincia: {solicitud.provincia}</p>
+                                    <p className="card-text">Ciudad: {solicitud.ciudad}</p>
+                                    <p className="fs-5 text-center w-25 p-3 bg-danger text-white rounded-pill">{solicitud.factor_sanguineo}</p>
+                                    <button className="btn btn-primary position-absolute bottom-0 end-0" onClick={() => handleEnviarWhatsapp(solicitud.telefono)}>
                                         Enviar WhatsApp
                                     </button>
                                 </div>
