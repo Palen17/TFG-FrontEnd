@@ -40,7 +40,7 @@ export const Navbar = ({ setDatosUsuario }) => {
                                 <NavLink className={"nav-link"} to={"/contacto"}>Contactos</NavLink>
                             </li>
                             <li className="nav-item">
-                                <button className="btn btn-danger" onClick={handleLogout}>
+                                <button className="btn btn-warning" onClick={handleLogout}>
                                     Cerrar Sesión
                                 </button>
                             </li>
