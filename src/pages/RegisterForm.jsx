@@ -274,7 +274,7 @@ export const RegisterForm = () => {
           </select>
         </div>
 
-        <button type="submit" className="btn btn-danger">Registrarse</button>
+        <button type="submit" className="btn btn-primary">Registrarse</button>
       </form>
       {message && <div className="mt-3 alert alert-danger" role="alert">{message}</div>}
     </div>
